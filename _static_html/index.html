@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hachoir Documentation</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap" rel="stylesheet">
+    <script>
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('sidebar-collapsed');
+        }
+
+        // Highlight active link and scroll to section
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('.sidebar-nav a');
+            
+            // Highlight active link on click
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    links.forEach(l => l.parentElement.classList.remove('active'));
+                    link.parentElement.classList.add('active');
+                    
+                    // Smooth scroll to section
+                    if(link.getAttribute('href').startsWith('#')) {
+                        e.preventDefault();
+                        const targetId = link.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+                        if(targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - 20,
+                                behavior: 'smooth'
+                            });
+                        }
+                        
+                        // Close sidebar on mobile after clicking
+                        if(window.innerWidth < 768) {
+                            toggleSidebar();
+                        }
+                    }
+                });
+            });
+            
+            // Add copy to clipboard functionality
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const codeBlock = button.previousElementSibling;
+                    const code = codeBlock.textContent;
+                    navigator.clipboard.writeText(code);
+                    
+                    // Show copied message
+                    button.textContent = 'Copied!';
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                    }, 2000);
+                });
+            });
+            
+            // Toggle theme
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+                themeToggle.textContent = document.body.classList.contains('dark-theme') 
+                    ? '☀️ Light Mode' 
+                    : '🌙 Dark Mode';
+            });
+            
+            // Toggle sections
+            document.querySelectorAll('.section-toggle').forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const section = toggle.parentElement.nextElementSibling;
+                    section.classList.toggle('collapsed');
+                    toggle.textContent = section.classList.contains('collapsed') ? '▼' : '▲';
+                });
+            });
+        });
+        
+        // Back to top functionality
+        window.addEventListener('scroll', () => {
+            const backToTop = document.querySelector('.back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Hachoir</h1>
+                <p class="version">v3.3.0</p>
+                <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation">☰</button>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#what-is">Overview</a></li>
+                    <li><a href="#key-features">Features</a></li>
+                    <li><a href="#quick-start">Quick Start</a></li>
+                    <li><a href="#installation">Installation</a></li>
+                    <li><a href="#command-line-tools">CLI Tools</a></li>
+                    <li><a href="#parsers">Parsers</a></li>
+                    <li><a href="#developer-guide">Developer Guide</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#use-cases">Use Cases</a></li>
+                    <li><a href="#version-history">Version History</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-actions">
+                <button id="theme-toggle" class="theme-toggle">🌙 Dark Mode</button>
+            </div>
+            <div class="sidebar-footer">
+                <a href="https://github.com/vstinner/hachoir" target="_blank" rel="noopener">GitHub</a>
+                <a href="https://hachoir.readthedocs.io/" target="_blank" rel="noopener">ReadTheDocs</a>
+                <a href="#community">Community</a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <div class="content-header">
+                <h1>Welcome to Hachoir</h1>
+                <p class="intro">Explore the powerful Python library for binary stream parsing and editing.</p>
+                <div class="header-badges">
+                    <span class="badge">Python 3.6+</span>
+                    <span class="badge">MIT License</span>
+                    <span class="badge">Active Development</span>
+                </div>
+            </div>
+            
+            <section id="what-is" class="content-section">
+                <div class="section-header">
+                    <h2>What is Hachoir?</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <p>Hachoir is a Python library designed to view and edit binary streams field by field. It allows users to "browse" any binary stream just like navigating through directories and files. The name "Hachoir" comes from the French word for meat grinder, which is fitting as it helps "computer butchers" divide binary files into fields.</p>
+                    <p>With Hachoir, files are split into a tree of fields, where the smallest field can be just one bit. Examples of field types include integers, strings, bits, padding types, floats, and more.</p>
+                    <div class="info-box">
+                        <p><strong>Why Use Hachoir?</strong> Unlike traditional hex editors that work at the byte level, Hachoir provides semantic understanding of file structures, making it easier to analyze and modify complex binary formats.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="key-features" class="content-section">
+                <div class="section-header">
+                    <h2>Key Features</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <ul class="feature-list">
+                        <li><strong>Autofix:</strong> Capable of opening invalid or truncated files</li>
+                        <li><strong>Lazy Loading:</strong> Fast file opening as data is read only when requested</li>
+                        <li><strong>Rich Type System:</strong> Supports many predefined field types and various character encodings</li>
+                        <li><strong>Bit-Level Precision:</strong> Addresses and sizes stored in bits, enabling precise representation</li>
+                        <li><strong>Flexible Endianness:</strong> Automatic conversion to the right endian format</li>
+                        <li><strong>Editing Capabilities:</strong> Support for editing, inserting, and removing data</li>
+                        <li><strong>Expert System Framework:</strong> Customizable rules for advanced parsing scenarios</li>
+                        <li><strong>Extensible Architecture:</strong> Create custom parsers for proprietary formats</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section id="quick-start" class="content-section">
+                <div class="section-header">
+                    <h2>Quick Start Guide</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <p>Here's how to get started with Hachoir in just a few minutes:</p>
+                    <ol class="steps-list">
+                        <li>
+                            <strong>Install Hachoir:</strong>
+                            <div class="code-container">
+                                <pre><code>pip install hachoir</code></pre>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Import the library and parse a file:</strong>
+                            <div class="code-container">
+                                <pre><code>from hachoir.parser import createParser
+from hachoir.metadata import extractMetadata
+
+# Create a parser
+parser = createParser("image.png")
+# Extract metadata
+metadata = extractMetadata(parser)
+# Display metadata
+for line in metadata.exportPlaintext():
+    print(line)</code></pre>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Navigate through fields:</strong>
+                            <div class="code-container">
+                                <pre><code>from hachoir.core.tools import displayHuman
+
+# Get the root of parsed file
+root = parser.root
+# Display fields
+for field in root:
+    print(f"{field.name}: {field.description} (size: {displayHuman(field.size)})")</code></pre>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+
+            <section id="command-line-tools" class="content-section">
+                <div class="section-header">
+                    <h2>Command Line Tools</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <p>Hachoir includes several useful command line tools:</p>
+                    <div class="tools-grid">
+                        <div class="tool-card">
+                            <h3>hachoir-grep</h3>
+                            <p>Find text patterns in binary files</p>
+                            <div class="code-container">
+                                <pre><code>hachoir-grep "pattern" example.bin</code></pre>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <h3>hachoir-metadata</h3>
+                            <p>Extract metadata from binary files</p>
+                            <div class="code-container">
+                                <pre><code>hachoir-metadata example.bin</code></pre>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <h3>hachoir-strip</h3>
+                            <p>Modify files to remove metadata</p>
+                            <div class="code-container">
+                                <pre><code>hachoir-strip example.bin</code></pre>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                        <div class="tool-card">
+                            <h3>hachoir-urwid</h3>
+                            <p>Display binary file content in text mode</p>
+                            <div class="code-container">
+                                <pre><code>hachoir-urwid example.bin</code></pre>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="installation" class="content-section">
+                <div class="section-header">
+                    <h2>Installation Guide</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <p>Hachoir can be installed easily using pip. It supports Python 3.6 and above.</p>
+                    <div class="tabs">
+                        <div class="tab-headers">
+                            <button class="tab-btn active" data-tab="pip">Using pip</button>
+                            <button class="tab-btn" data-tab="source">From Source</button>
+                            <button class="tab-btn" data-tab="distro">Linux Distros</button>
+                        </div>
+                        <div class="tab-content active" id="pip">
+                            <ol>
+                                <li>Ensure you have Python 3.6+ installed.</li>
+                                <li>Run <code>pip install hachoir</code> in your terminal or command prompt.</li>
+                                <li>Verify the installation by running <code>hachoir-metadata --help</code>.</li>
+                            </ol>
+                        </div>
+                        <div class="tab-content" id="source">
+                            <ol>
+                                <li>Clone the repository: <code>git clone https://github.com/vstinner/hachoir.git</code></li>
+                                <li>Navigate to the directory: <code>cd hachoir</code></li>
+                                <li>Install using pip: <code>pip install -e .</code></li>
+                            </ol>
+                        </div>
+                        <div class="tab-content" id="distro">
+                            <p><strong>Debian/Ubuntu:</strong> <code>apt install python3-hachoir</code></p>
+                            <p><strong>Arch Linux:</strong> <code>pacman -S python-hachoir</code></p>
+                            <p><strong>Fedora:</strong> <code>dnf install python3-hachoir</code></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="parsers" class="content-section">
+                <div class="section-header">
+                    <h2>Parsers</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <p>Hachoir includes 91 parsers for various file formats and data types, organized by category:</p>
+                    <div class="parser-categories">
+                        <div class="parser-category">
+                            <h3>Archives</h3>
+                            <p>ZIP, RAR, TAR, GZIP, CAB, etc.</p>
+                        </div>
+                        <div class="parser-category">
+                            <h3>Audio</h3>
+                            <p>MP3, WAV, MIDI, AIFF, etc.</p>
+                        </div>
+                        <div class="parser-category">
+                            <h3>Containers</h3>
+                            <p>AVI, MKV, OGG, ASF, etc.</p>
+                        </div>
+                        <div class="parser-category">
+                            <h3>File Systems</h3>
+                            <p>ISO9660, FAT12/16/32, NTFS, etc.</p>
+                        </div>
+                        <div class="parser-category">
+                            <h3>Images</h3>
+                            <p>PNG, JPEG, GIF, BMP, TIFF, etc.</p>
+                        </div>
+                        <div class="parser-category">
+                            <h3>Program</h3>
+                            <p>EXE, ELF, Java Class, etc.</p>
+                        </div>
+                    </div>
+                    <p>Explore the <a href="https://hachoir.readthedocs.io/en/latest/parser.html" target="_blank" rel="noopener">Parser Module Documentation</a> for a complete list and details.</p>
+                </div>
+            </section>
+
+            <section id="developer-guide" class="content-section">
+                <div class="section-header">
+                    <h2>Developer Guide</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <p>Learn how to use Hachoir's API to create custom parsers and manipulate binary data structures.</p>
+                    <h3>Creating a Custom Parser</h3>
+                    <div class="code-container">
+                        <pre><code>from hachoir.parser import Parser
+from hachoir.field import FieldSet, UInt32, String
+
+class MyFormat(Parser):
+    PARSER_TAGS = {
+        "id": "my_format",
+        "category": "archive",
+        "file_ext": ("fmt",),
+        "min_size": 8*8,
+        "description": "My custom file format"
+    }
+    
+    endian = LITTLE_ENDIAN
+    
+    def validate(self):
+        if self.stream.readBytes(0, 4) != b'FMT\0':
+            return "Invalid signature"
+        return True
+    
+    def createFields(self):
+        yield String(self, "signature", 4, "File signature")
+        yield UInt32(self, "version", "Format version")
+        # Add more fields as needed</code></pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <p>Check the <a href="https://hachoir.readthedocs.io/en/latest/developer.html" target="_blank" rel="noopener">Developer Documentation</a> for more examples and advanced usage.</p>
+                </div>
+            </section>
+
+            <section id="examples" class="content-section">
+                <div class="section-header">
+                    <h2>Examples</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <p>Here are some example commands and scripts to get you started with Hachoir:</p>
+                    
+                    <h3>Command Line Examples</h3>
+                    <div class="code-container">
+                        <pre><code># Extract metadata from a file
+hachoir-metadata example.bin
+
+# Search for a pattern in a binary file
+hachoir-grep "pattern" example.bin
+
+# Strip metadata from a file
+hachoir-strip example.bin</code></pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    
+                    <h3>Python Script Examples</h3>
+                    <div class="code-container">
+                        <pre><code># Extract all metadata from a file
+from hachoir.parser import createParser
+from hachoir.metadata import extractMetadata
+
+def extract_metadata(filename):
+    parser = createParser(filename)
+    if not parser:
+        print(f"Unable to parse {filename}")
+        return
+    
+    with parser:
+        metadata = extractMetadata(parser)
+    
+    if not metadata:
+        print(f"Unable to extract metadata from {filename}")
+        return
+    
+    for line in metadata.exportPlaintext():
+        print(line)
+
+extract_metadata("example.jpg")</code></pre>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="use-cases" class="content-section">
+                <div class="section-header">
+                    <h2>Use Cases</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <div class="use-case-cards">
+                        <div class="use-case-card">
+                            <h3>Digital Forensics</h3>
+                            <p>Analyze binary files for hidden data, recover deleted content, and validate file integrity.</p>
+                        </div>
+                        <div class="use-case-card">
+                            <h3>Reverse Engineering</h3>
+                            <p>Understand proprietary file formats by exploring their structure field by field.</p>
+                        </div>
+                        <div class="use-case-card">
+                            <h3>Data Recovery</h3>
+                            <p>Extract useful information from corrupted files using Hachoir's robust parsing capabilities.</p>
+                        </div>
+                        <div class="use-case-card">
+                            <h3>Automated Processing</h3>
+                            <p>Build tools that process binary files in batch operations without manual intervention.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="version-history" class="content-section">
+                <div class="section-header">
+                    <h2>Version History</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-date">3.3.0</div>
+                            <div class="timeline-content">
+                                <h3>Latest Release (April 2025)</h3>
+                                <ul>
+                                    <li>Added support for new file formats</li>
+                                    <li>Improved performance for large files</li>
+                                    <li>Fixed various bugs in parsers</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date">3.2.0</div>
+                            <div class="timeline-content">
+                                <h3>Major Update (October 2024)</h3>
+                                <ul>
+                                    <li>Modernized code base for Python 3.8+</li>
+                                    <li>Added new parsers for container formats</li>
+                                    <li>Enhanced error handling and recovery</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date">3.0.0</div>
+                            <div class="timeline-content">
+                                <h3>Python 3 Transition (January 2023)</h3>
+                                <ul>
+                                    <li>Complete rewrite for Python 3.6+</li>
+                                    <li>Dropped support for Python 2</li>
+                                    <li>Restructured API for better usability</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="community" class="content-section">
+                <div class="section-header">
+                    <h2>Community & Support</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <div class="community-links">
+                        <a href="https://github.com/vstinner/hachoir/issues" class="community-link" target="_blank" rel="noopener">
+                            <span class="icon">🐛</span>
+                            <span class="text">Report Bugs</span>
+                        </a>
+                        <a href="https://github.com/vstinner/hachoir/discussions" class="community-link" target="_blank" rel="noopener">
+                            <span class="icon">💬</span>
+                            <span class="text">Discussions</span>
+                        </a>
+                        <a href="https://stackoverflow.com/questions/tagged/hachoir" class="community-link" target="_blank" rel="noopener">
+                            <span class="icon">❓</span>
+                            <span class="text">Stack Overflow</span>
+                        </a>
+                        <a href="https://github.com/vstinner/hachoir/blob/main/CONTRIBUTING.md" class="community-link" target="_blank" rel="noopener">
+                            <span class="icon">🤝</span>
+                            <span class="text">Contribute</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="faq" class="content-section">
+                <div class="section-header">
+                    <h2>FAQ</h2>
+                    <span class="section-toggle">▲</span>
+                </div>
+                <div class="section-content">
+                    <div class="accordion">
+                        <div class="accordion-item">
+                            <div class="accordion-header">Is Hachoir actively maintained?</div>
+                            <div class="accordion-content">
+                                <p>Yes, Hachoir is actively maintained with recent updates and a vibrant community. The latest version 3.3.0 was released in April 2025 with significant improvements.</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header">What platforms does Hachoir support?</div>
+                            <div class="accordion-content">
+                                <p>Hachoir supports Linux, Windows, and macOS platforms. It's compatible with any system that can run Python 3.6 or newer.</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header">Can I contribute to Hachoir?</div>
+                            <div class="accordion-content">
+                                <p>Absolutely! Contributions are welcome via the GitHub repository. You can contribute by adding new parsers, fixing bugs, improving documentation, or suggesting new features.</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header">Does Hachoir work with large files?</div>
+                            <div class="accordion-content">
+                                <p>Yes, Hachoir uses lazy loading which means it only reads data when needed. This makes it efficient even with very large files, as it doesn't load the entire file into memory.</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header">How does Hachoir compare to other binary parsing tools?</div>
+                            <div class="accordion-content">
+                                <p>Hachoir offers several advantages over other tools:</p>
+                                <ul>
+                                    <li>Bit-level precision instead of byte-level</li>
+                                    <li>Lazy loading for efficient memory usage</li>
+                                    <li>Rich type system with many predefined field types</li>
+                                    <li>Both parsing and editing capabilities</li>
+                                    <li>Python integration for easy automation and extension</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Back to top button -->
+    <button class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</button>
+</body>
+</html>
